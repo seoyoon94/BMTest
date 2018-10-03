@@ -13,45 +13,40 @@ const clientConfig = {
   },
   module: {
     rules: [
-      { 
+      {
         test: /\.(js|jsx)$/,
         use: {
           loader: 'babel-loader',
           options: {
             babelrc: false,
-            presets: [
-              "@babel/preset-env",
-              "@babel/preset-react"
-            ],
-            plugins: [
-              "@babel/plugin-syntax-dynamic-import"
-            ]      
-          }  
-        },
+            presets: ['@babel/preset-env', '@babel/preset-react'],
+            plugins: ['@babel/plugin-syntax-dynamic-import']
+          }
+        }
       },
       {
         test: /\.css$/,
-        use: ExtractTextPlugin.extract(
-          {
-            fallback: 'style-loader',
-            use: ['css-loader']
-          })
+        use: ExtractTextPlugin.extract({
+          fallback: 'style-loader',
+          use: ['css-loader']
+        })
       }
     ]
   },
   plugins: [
-    new ExtractTextPlugin({filename: 'style.css'}),
+    new ExtractTextPlugin({ filename: 'style.css' }),
     new webpack.DefinePlugin({
-      __isBrowser__: "true"
+      __isBrowser__: 'true'
     })
-  ]
+  ],
+  devtool: 'source-map'
 }
 
 const serverConfig = {
   mode: process.env.NODE_ENV,
   target: 'node',
   externals: [nodeExternals()],
-  entry: { 
+  entry: {
     main: './src/server/index.js'
   },
   output: {
@@ -65,35 +60,30 @@ const serverConfig = {
         test: /\.(js|jsx)$/,
         exclude: /node_modules/,
         use: {
-          loader: "babel-loader",
+          loader: 'babel-loader',
           options: {
             babelrc: false,
-            presets: [
-              "@babel/preset-env",
-              "@babel/preset-react"
-            ],
-            plugins: [
-              "@babel/plugin-syntax-dynamic-import"
-            ]      
+            presets: ['@babel/preset-env', '@babel/preset-react'],
+            plugins: ['@babel/plugin-syntax-dynamic-import']
           }
         }
       },
       {
         test: /\.css$/,
-        use: ExtractTextPlugin.extract(
-          {
-            fallback: 'style-loader',
-            use: ['css-loader']
-          })
+        use: ExtractTextPlugin.extract({
+          fallback: 'style-loader',
+          use: ['css-loader']
+        })
       }
     ]
   },
-  plugins: [ 
-    new ExtractTextPlugin({filename: 'style.css'}),
+  plugins: [
+    new ExtractTextPlugin({ filename: 'style.css' }),
     new webpack.DefinePlugin({
-      __isBrowser__: "false"
+      __isBrowser__: 'false'
     })
-  ]
-};
+  ],
+  devtool: 'source-map'
+}
 
 module.exports = [clientConfig, serverConfig]
