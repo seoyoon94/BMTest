@@ -28,6 +28,6 @@ class Lyrebird {
       })
     })
   }
-}``
+}
 
 export default Lyrebird

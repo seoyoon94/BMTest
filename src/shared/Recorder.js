@@ -1,9 +1,9 @@
 import React from 'react'
 import Button from './Button'
 import Pullstring from 'pullstring'
+import TTSFactory from './TTS/TTSFactory'
 import './normalize.css'
 import './main.css'
-import Lyrebird from './Lyrebird';
 
 /**
  * Pullstring constants
@@ -16,10 +16,15 @@ class Recorder extends React.Component {
     super(props)
     this.onStart = this.onStart.bind(this)
     this.onResult = this.onResult.bind(this)
+    this.onResponse = this.onResponse.bind(this)
+    this.conversation = new Pullstring.Conversation()
+    this.conversation.onResponse = this.onResponse
+    this.conversation.start(psProjectId, new Pullstring.Request({
+      apiKey: psApiKey
+    }))
 
     this.state = {
       isRecording: false,
-      speechRecognizer: null,
       userHeader: 'User',
       userText: 'Ready to begin conversation',
       psHeader: 'Pullstring',
@@ -28,28 +33,23 @@ class Recorder extends React.Component {
   }
 
   componentDidMount() {
-    const request = new Pullstring.Request({
-      apiKey: psApiKey
-    })
     let accessToken = window.location.hash.split('&')[0]
     accessToken = accessToken.substring(accessToken.indexOf('=') + 1)
-    this.lyrebird = new Lyrebird(accessToken)
-    this.conversation = new Pullstring.Conversation()
-    this.conversation.start(psProjectId, request)
+    this.ttsClient = TTSFactory.createTTSClient(this.props.ttsClient, accessToken)
+
+    // Initialize speech recognition
     this.speechRecognizer = new webkitSpeechRecognition()
+    this.speechRecognizer.lang = 'en-US'
+    this.speechRecognizer.interimResults = false
+    this.speechRecognizer.maxAlternatives = 1
+    this.speechRecognizer.onresult = this.onResult
   }
 
   onStart() {
     this.setState({ 
       isRecording: true
     })
-    const speechRecognizer = this.speechRecognizer
-    speechRecognizer.lang = 'en-US'
-    speechRecognizer.interimResults = false
-    speechRecognizer.maxAlternatives = 1
-    speechRecognizer.onresult = this.onResult
-
-    speechRecognizer.start()
+    this.speechRecognizer.start()
   }
 
   onResult(e) {
@@ -59,18 +59,16 @@ class Recorder extends React.Component {
       userText: transcript
     })
     this.conversation.sendText(transcript)
-
-    this.conversation.onResponse = (response) => {
-      const text = response.outputs && response.outputs[0] && response.outputs[0].text
-      if (text) {
-        this.lyrebird.generate(text)
-        // const speech = new SpeechSynthesisUtterance(text)
-        // speechSynthesis.speak(speech)
-        this.setState({
-          isRecording: false,
-          psText: text
-        })
-      }
+  }
+  
+  onResponse(response) {
+    const text = response.outputs && response.outputs[0] && response.outputs[0].text
+    if (text) {
+      this.ttsClient.speak(text)
+      this.setState({
+        isRecording: false,
+        psText: text
+      })
     }
   }
 
