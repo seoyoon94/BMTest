@@ -3,6 +3,7 @@ import Button from './Button'
 import Pullstring from 'pullstring'
 import './normalize.css'
 import './main.css'
+import Lyrebird from './Lyrebird';
 
 /**
  * Pullstring constants
@@ -30,6 +31,9 @@ class Recorder extends React.Component {
     const request = new Pullstring.Request({
       apiKey: psApiKey
     })
+    let accessToken = window.location.hash.split('&')[0]
+    accessToken = accessToken.substring(accessToken.indexOf('=') + 1)
+    this.lyrebird = new Lyrebird(accessToken)
     this.conversation = new Pullstring.Conversation()
     this.conversation.start(psProjectId, request)
     this.speechRecognizer = new webkitSpeechRecognition()
@@ -59,8 +63,9 @@ class Recorder extends React.Component {
     this.conversation.onResponse = (response) => {
       const text = response.outputs && response.outputs[0] && response.outputs[0].text
       if (text) {
-        const speech = new SpeechSynthesisUtterance(text)
-        speechSynthesis.speak(speech)
+        this.lyrebird.generate(text)
+        // const speech = new SpeechSynthesisUtterance(text)
+        // speechSynthesis.speak(speech)
         this.setState({
           isRecording: false,
           psText: text
