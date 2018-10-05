@@ -11,17 +11,15 @@ const [clientConfig] = config
 const compiler = webpack(config)
 
 const app = express()
+
 app.get('/', (_, res) => {
-    const props = {
-        ttsClient: process.env.BLABBERMOUTH_TTS_CLIENT || blabberMouthConfigs.ttsClient || 'native'
-    }
-    const jsx = (<Recorder {...props}/>)
+    const jsx = (<Recorder {...blabberMouthConfigs}/>)
     const reactDom = ReactDOM.renderToString(jsx)
 
     res.end(htmlTemplate(reactDom))
 })
 
-app.get('/authenticate', (req, res) => {
+app.get('/authenticate', (_, res) => {
     const url = new URL(blabberMouthConfigs.lyrebird.baseUrl)
     const queryParams = new URLSearchParams({
         response_type: 'token',

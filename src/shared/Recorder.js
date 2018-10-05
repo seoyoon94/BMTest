@@ -5,12 +5,6 @@ import TTSFactory from './TTS/TTSFactory'
 import './normalize.css'
 import './main.css'
 
-/**
- * Pullstring constants
- */
-const psProjectId = '0fe4bf2c-8771-4dcc-b767-877b6abcd772'
-const psApiKey = '3bcba332-2c98-4044-a6eb-8927c5cb5f4c'
-
 class Recorder extends React.Component {
   constructor(props) {
     super(props)
@@ -19,8 +13,8 @@ class Recorder extends React.Component {
     this.onResponse = this.onResponse.bind(this)
     this.conversation = new Pullstring.Conversation()
     this.conversation.onResponse = this.onResponse
-    this.conversation.start(psProjectId, new Pullstring.Request({
-      apiKey: psApiKey
+    this.conversation.start(this.props.pullstring.projectId, new Pullstring.Request({
+      apiKey: this.props.pullstring.apiKey
     }))
 
     this.state = {
@@ -60,7 +54,7 @@ class Recorder extends React.Component {
     })
     this.conversation.sendText(transcript)
   }
-  
+
   onResponse(response) {
     const text = response.outputs && response.outputs[0] && response.outputs[0].text
     if (text) {
